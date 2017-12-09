@@ -1,0 +1,27 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class CameraController : MonoBehaviour {
+
+	public GameObject player;
+
+	private Vector3 offset;
+
+	void Start ()
+	{
+        // This sets the offset variable to the player's position for the start of the game
+		offset = transform.position = player.transform.position;
+        /* When I was testing this, the camera would always end up just showing the background, 
+           I found that this was because the z axis ended up the same as everything that I made, so it didn't show them
+           To fix this I manually set the z axis to -1 (closer to the camera) */
+		offset.z = -1;
+	}
+
+	void LateUpdate ()
+	{
+        /* The camera needed to follow the player, so to do this I tool the offset (the player's origional position),
+           and added/subtracted the player's current position. This meant that the camera always perfectly followed the player */
+		transform.position = player.transform.position + offset;
+	}
+}
