@@ -1,0 +1,96 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+
+/* I made a global variable and named it speed, which I use for both the player and the chaser's speed, this was so that if I changed the speed of the player, 
+   the chaser would also speed up so that it didn't become too easy to avoid */
+public static class globals {
+	public static float speed;
+}
+
+public class MovePlayer : MonoBehaviour {
+
+    // These are all variables that I used in my code
+	private Rigidbody2D rb2d;
+	private int count;
+
+	public Text countText;
+	public Text winText;
+	public GameObject chaser;
+	public GameObject background;
+
+
+	void Start () {
+        //Here I set the speed variable and the two private variables.
+		globals.speed = 2f;
+		rb2d = GetComponent<Rigidbody2D> ();
+		count = 0;
+        /* I reset the winText to be blank because you can reset the game.
+           So I set it to nothing because it's easier to add and remove the text rather than hiding it and then showing it again */ 
+		winText.text = "";
+        //Here I call the function that handles the count text, this is to reset it to zero when the game is reset.
+		SetCountText ();
+		Time.timeScale = 1;
+	}
+
+	void FixedUpdate () {
+
+        /* The moveHorizontal and moveVertical floats hold a value between 1 and -1 based on what the player is pressing.
+           This can be used for controller inputs where the joystick can have multiple values between left and right
+           rather than a keyboard which can only give a 1, 0 or -1 */
+		float moveHorizontal = Input.GetAxis ("Horizontal");
+		float moveVertical = Input.GetAxis ("Vertical");
+        // This uses the horizontal and vertical axis that we got to create a new vector point.
+		Vector2 movement = new Vector2 (moveHorizontal, moveVertical);
+        // This uses the rigidbody component and the vector from earlier to add a force to the player object in the direction that the player inputs
+		rb2d.AddForce (movement * globals.speed);
+	}
+
+	void Update () {
+		if (Input.GetKeyDown ("r"))
+            // After checking for if the 'r' key is pressed this line loads the scene that is currently active, effectively resetting the game
+			Application.LoadLevel (Application.loadedLevel);
+	}
+
+    // The following function starts when the player's collision box hits another one
+	void OnTriggerEnter2D (Collider2D other) {
+        // This if statement checks for if the tag of the object that it collided into is 'PickUp'
+		if (other.gameObject.CompareTag ("PickUp")) {
+            /* Setting a gameobject's setactive to false turns off turns it off in the inspector, making it uninteractible and invisible.
+               Normally it would be better to use destroy rather than to hide it, 
+               but in this case there would be nothing more in the scene so hiding it was the better choice */
+			other.gameObject.SetActive (false);
+            // The next lines add 1 to the count variable and then call the function handling the score
+			count = count + 1;
+			SetCountText ();
+		}
+		if (count <= 15) {
+            /* After checking if the count is less than or equal to 15 (the game isn't finished yet)
+               The next two if statements run, checking the tags of anything the player collides with */
+			if (other.gameObject.CompareTag ("DeathBox")) {
+				winText.text = "You Lose\nPress R to Restart";
+				Time.timeScale = 0;
+			}
+			if (other.gameObject.CompareTag ("Enemy")) {
+				winText.text = "You Lose\nPress R to Restart";
+				Time.timeScale = 0;
+			}
+            /* Both of the above 'if' statements freeze the game by setting the timescale to 0,
+               They also tell the player that they've lost and how to restart the game */
+		}
+	}
+	 
+	void SetCountText () {
+        /* This sets the count text to display the score.
+           The count variable is and integer so it can't be displayed normally as text,
+           to fix this I simply turned it into a string with an inbuilt function */
+		countText.text = "Count: " + count.ToString ();
+		if (count >= 16) {
+            /* If the score is 16 or over (The game is finished),
+               the timescale is set to zero to freeze the game and the player is told that they've won and how to restart */
+			winText.text = "You Win!\nPress R to Restart";
+			Time.timeScale = 0;
+		}
+	}
+}
