@@ -1,0 +1,23 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class MoveChaser : MonoBehaviour {
+
+    // This is a variable that I used for the player object so that the script knows what to move towards
+	public Transform Player;
+
+	void Update() {
+        /* I decided that rather than finding where the player is and then adding a force in that direction,
+           that it would be easier to just move the chaser constantly forwards and just rotate it
+           so that it would always be facing towards the player, this made it a more fluid motion than before. */
+		transform.LookAt (Player.position);
+		transform.Rotate (new Vector3 (0, -90, 0), 1f);
+	
+
+		if (Vector3.Distance (transform.position, Player.position) > 1f) {
+            // This checks if how far away the player is and if they are too far away, moves the chaser towards them
+			transform.Translate (new Vector3 (globals.speed * Time.deltaTime, 0, 0));
+		}
+	}
+}
